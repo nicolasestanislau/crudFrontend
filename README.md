@@ -1,5 +1,21 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+CRUD feito com:
+
+    backend
+        node
+        nodemon
+        express
+        prisma
+        banco de dados postgres
+        Docker
+
+    frontend
+        nextjs
+        axios
+        css
+        icons
+
 ## Getting Started
 
 First, run the development server:
