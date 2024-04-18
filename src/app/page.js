@@ -22,28 +22,52 @@ export default function Home() {
 
   async function getTodos() {
     const response = await axios.get("http://localhost:3333/todos");
-    console.log("fffff ", response);
     setTodos(response.data);
   }
 
   async function createTodo() {
-    const response = await axios.post("http://localhost:3333/todos", {
-      name: inputValue,
-    });
-    getTodos();
-    setInputVisbility(!inputVisbility);
-    setInputValue("");
-  }
+    if (inputValue.trim().length === 0) {
+      alert("INPUT EMPTY");
+      return;
+    }
 
-  async function editTodo() {
-    const response = await axios.put("http://localhost:3333/todos", {
-      id: selectedTodo.id,
-      name: inputValue,
+    // valida se task ja existe
+    let exists = false;
+    todos.map((todo, id) => {
+      if (todo.name === inputValue) {
+        alert("task already exists");
+        exists = true;
+        return;
+      }
     });
-    setSelectedTodo();
-    setInputVisbility(false);
-    getTodos();
-    setInputValue("");
+    if (!exists) {
+      const response = await axios.post("http://localhost:3333/todos", {
+        name: inputValue,
+      });
+      getTodos();
+      setInputVisbility(!inputVisbility);
+      setInputValue("");
+    }
+  }
+  let editExists = false;
+  async function editTodo() {
+    todos.map((todo, id) => {
+      if (todo.name === inputValue) {
+        alert("task already exists");
+        editExists = true;
+        return;
+      }
+    });
+    if (!editExists) {
+      const response = await axios.put("http://localhost:3333/todos", {
+        id: selectedTodo.id,
+        name: inputValue,
+      });
+      setSelectedTodo();
+      setInputVisbility(false);
+      getTodos();
+      setInputValue("");
+    }
   }
 
   async function deleteTodo(todo) {
@@ -52,13 +76,10 @@ export default function Home() {
   }
 
   async function modifyStatusTodo(todo) {
-    console.log("ddd");
-
     const res = await axios.put("http://localhost:3333/todos", {
       id: todo.id,
       status: !todo.status,
     });
-    console.log("res ", res);
     getTodos();
   }
   const Todos = ({ todos }) => {
@@ -79,10 +100,10 @@ export default function Home() {
                 className="button"
                 style={{ backgroundColor: todo.status ? "purple" : "grey" }}
               >
-                <FontAwesomeIcon size={20} icon={faEdit} />
+                <FontAwesomeIcon size={"lg"} icon={faEdit} />
               </button>
               <button onClick={() => deleteTodo(todo)} className="button">
-                <FontAwesomeIcon size={20} icon={faDeleteLeft} />
+                <FontAwesomeIcon size={"lg"} icon={faDeleteLeft} />
               </button>
             </div>
           );
