@@ -21,7 +21,9 @@ CRUD feito com:
 First, run the development server:
 
 ```bash
-npm run dev
+npm install
+npx next build
+npx next dev
 # or
 yarn dev
 # or

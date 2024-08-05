@@ -9,7 +9,7 @@
 }
 
 .container {
-  background-color: #dae0f5;
+  background-color: rgb(37, 40, 42);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -76,6 +76,7 @@
   height: 50px;
   width: 200px;
   box-shadow: 0px 0px 21px -7px rgba(0, 0, 0, 0.3);
+  color: #a879e6;
 }
 .inputName:focus {
   outline: none;

@@ -2,11 +2,11 @@
 
 .button {
   border: none;
-  width: 28px;
-  height: 28px;
+  /*  width: 28px;
+  height: 28px; */
   margin-right: 16px;
 
-  padding: 6px;
+  /*  padding: 6px;*/
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -18,7 +18,7 @@
 }
 
 .container {
-  background-color: #dae0f5;
+  background-color: rgb(37, 40, 42);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -26,7 +26,16 @@
   justify-content: center;
 }
 .todos {
-  background-color: white;
+  display: flex;
+  align-items: center;
+  background-color: rgb(24, 26, 27);
+  width: 508px;
+  height: 383px;
+  overflow-y: scroll;
+}
+
+.todosFull {
+  background-color: rgb(24, 26, 27);
   width: 508px;
   height: 383px;
   overflow-y: scroll;
@@ -79,13 +88,27 @@
   font-size: 0.8rem;
 }
 .inputName {
-  margin-top: 10px;
+  margin-right: 16px;
   text-align: center;
   border: none;
   height: 50px;
   width: 200px;
   box-shadow: 0px 0px 21px -7px rgba(0, 0, 0, 0.3);
+  color: #fff;
 }
 .inputName:focus {
   outline: none;
+  border: #a879e6;
+  background-color: #a879e6;
+
+}
+
+.buttonContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.buttonContainer button, input {
+  margin: 0;
 }
