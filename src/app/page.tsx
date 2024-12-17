@@ -1,15 +1,15 @@
 "use client";
-import React, { useEffect, useState, MouseEvent } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDeleteLeft, faEdit } from "@fortawesome/free-solid-svg-icons";
 import Button from "@mui/material/Button";
-import ControlPointIcon from '@mui/icons-material/ControlPoint';
-import TextField from '@mui/material/TextField';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ControlPointIcon from "@mui/icons-material/ControlPoint";
+import TextField from "@mui/material/TextField";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import axios from "axios";
 import "./style.css";
@@ -21,33 +21,14 @@ interface Todo {
   status: boolean;
 }
 
-const styles = {
-  select: {
-    height: '100%',
-    marginBottom: '8px',
-  },
-  addChannelButton: {
-    marginBottom: '16px',
-  },
-  button: {
-    padding: '16px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    backgroundColor: '#a879e6',
-  },
-  buttonHover: {
-    backgroundColor: '#9259c5',
-  }
-};
-
 const style = {
-  position: 'absolute' as 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
+  position: "absolute" as "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
   width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
+  bgcolor: "background.paper",
+  border: "2px solid #000",
   boxShadow: 24,
   p: 4,
 };
@@ -56,28 +37,9 @@ export default function Home() {
   const { enqueueSnackbar } = useSnackbar();
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
-  //const [inputVisibility, setInputVisibility] = useState<boolean>(false);
   const [checkList, setCheckList] = useState<boolean>(false);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
-  const [isHovered, setIsHovered] = useState<boolean>(false);
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = (todo: Todo) => {
-    handleWithEdit(todo)
-    setOpen(true);
-  }
-  const handleClose = () => setOpen(false);
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-  };
-
-  /*   async function handleWithNewButton() {
-      setInputVisibility(!inputVisibility);
-    } */
+  const [open, setOpen] = useState(false);
 
   async function getTodos() {
     try {
@@ -94,42 +56,42 @@ export default function Home() {
 
   async function createTodo() {
     if (inputValue.trim().length === 0) {
-      enqueueSnackbar("Tarefa vazia.", { variant: 'error' });
+      enqueueSnackbar("Tarefa vazia.", { variant: "error" });
       return;
     }
 
-    const exists = todos.some(todo => todo.name === inputValue);
+    const exists = todos.some((todo) => todo.name === inputValue);
     if (exists) {
-      alert("Task already exists");
+      enqueueSnackbar("Tarefa já existe.", { variant: "error" });
       return;
     }
 
     try {
       await axios.post("http://localhost:3333/todos", { name: inputValue });
       getTodos();
-      ///setInputVisibility(false);
       setInputValue("");
     } catch (error) {
       console.error("Error creating todo:", error);
     }
   }
 
-  async function editTodo() {
-    console.log('isoasi')
-    if (!selectedTodo) return;
-
-    const exists = todos.some(todo => todo.name === inputValue);
-    if (exists) {
-      alert("Task already exists");
-      return;
-    }
+  async function editTodo(todo: Todo) {
+    if (!todo) return;
 
     try {
-      await axios.put(`http://localhost:3333/todos/${selectedTodo.id}`, { name: inputValue, id: selectedTodo.id, status: selectedTodo.status });
+      const updatedTodo = {
+        id: todo.id,
+        name: inputValue, // Atualiza apenas o nome com o valor do input
+        status: todo.status, // Mantém o status atual
+      };
+
+      await axios.put(`http://localhost:3333/todos`, updatedTodo);
+
+      // Resetando estados e recarregando a lista
       setSelectedTodo(null);
-      //setInputVisibility(false);
-      getTodos();
+      setOpen(false);
       setInputValue("");
+      getTodos();
     } catch (error) {
       console.error("Error editing todo:", error);
     }
@@ -146,49 +108,25 @@ export default function Home() {
 
   async function modifyStatusTodo(todo: Todo) {
     try {
-      const response = await axios.put("http://localhost:3333/todos", { status: !todo.status, id: todo.id, name: todo.name });
+      await axios.put(`http://localhost:3333/todos/${todo.id}`, {
+        ...todo,
+        status: !todo.status,
+      });
       getTodos();
-    } catch (error: any) {
-      console.error("Error modifying todo status:", error.response ? error.response.data : error.message);
+    } catch (error) {
+      console.error("Error modifying todo status:", error);
     }
   }
 
-  function Todos({ todos }: { todos: Todo[] }) {
-    return (
-      <main className={checkList ? 'todos' : 'todosFull'}>
-        {checkList && (
-          <div>
-            <PlaylistAddIcon sx={{ fontSize: 64, color: '#fff' }} />
-            <p style={{ color: 'rebeccapurple' }}>No momento, você não tem nenhuma tarefa registrada. Crie tarefas e organize seus itens de tarefas.</p>
-          </div>
-        )}
-
-        {Array.isArray(todos) && todos.map((todo, index) => (
-          <div className="todo" key={index}>
-            <button
-              onClick={() => modifyStatusTodo(todo)}
-              className="button"
-            ><CheckCircleOutlineIcon style={{ backgroundColor: todo.status ? "purple" : "grey", borderRadius: "16px" }} /></button>
-            <p>{todo.name}</p>
-            <button
-              onClick={() => handleOpen}
-              className="button"
-              style={{ backgroundColor: todo.status ? "purple" : "grey" }}
-            >
-              <FontAwesomeIcon size={"lg"} icon={faEdit} />
-            </button>
-            <button onClick={() => deleteTodo(todo)} className="button">
-              <FontAwesomeIcon size={"lg"} icon={faDeleteLeft} />
-            </button>
-          </div>
-        ))}
-      </main>
-    );
+  function handleOpen(todo: Todo) {
+    setSelectedTodo(todo);
+    setInputValue(todo.name); // Preenche o input com o nome do todo selecionado
+    setOpen(true);
   }
 
-  async function handleWithEdit(todo: Todo) {
-    setSelectedTodo(todo);
-    //setInputVisibility(true);
+  function handleClose() {
+    setSelectedTodo(null);
+    setOpen(false);
   }
 
   useEffect(() => {
@@ -202,57 +140,76 @@ export default function Home() {
           <section className="buttonContainer">
             <TextField
               hiddenLabel
-              id="filled-hidden-label-small"
-              value={inputValue}
               variant="filled"
               size="small"
-              sx={{
-                '&:hover:not(.Mui-disabled):before': {
-                  borderBottomColor: '#a879e6', // hover color
-                },
-                '&.Mui-focused:after': {
-                  borderBottomColor: '#a879e6', // focus color
-                },
-                '& .MuiInputBase-input': {
-                  color: '#fff',
-                },
-              }}
+              value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               className="inputName"
             />
-
-            <Button style={{
-              ...styles.button,
-              ...(isHovered ? styles.buttonHover : {})
-            }}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
+            <Button
               startIcon={<ControlPointIcon />}
               variant="contained"
-              onClick={createTodo}>
-              {inputValue ? "Confrimar?" : "Nova tarefa"}
-            </Button>
-            <Modal
-              open={open}
-              onClose={handleClose}
-              aria-labelledby="modal-modal-title"
-              aria-describedby="modal-modal-description"
+              onClick={createTodo}
             >
-              <Box sx={style}>
-                <Typography id="modal-modal-title" variant="h6" component="h2">
-                  Text in a modal
-                </Typography>
-                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                  Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                </Typography>
-              </Box>
-            </Modal>
+              {inputValue ? "Confirmar" : "Nova tarefa"}
+            </Button>
           </section>
 
           <div className="header">
             <h1>Lista de tarefas</h1>
           </div>
-          <Todos todos={todos} />
+          <main className={checkList ? "todos" : "todosFull"}>
+            {checkList && (
+              <div>
+                <PlaylistAddIcon sx={{ fontSize: 64, color: "#fff" }} />
+                <p style={{ color: "rebeccapurple" }}>
+                  Nenhuma tarefa registrada. Crie novas tarefas!
+                </p>
+              </div>
+            )}
+            {todos.map((todo) => (
+              <div className="todo" key={todo.id}>
+                <button
+                  onClick={() => modifyStatusTodo(todo)}
+                  className="button"
+                >
+                  <CheckCircleOutlineIcon
+                    style={{
+                      backgroundColor: todo.status ? "purple" : "grey",
+                      borderRadius: "16px",
+                    }}
+                  />
+                </button>
+                <p>{todo.name}</p>
+                <button onClick={() => handleOpen(todo)} className="button">
+                  <FontAwesomeIcon size={"lg"} icon={faEdit} />
+                </button>
+                <button onClick={() => deleteTodo(todo)} className="button">
+                  <FontAwesomeIcon size={"lg"} icon={faDeleteLeft} />
+                </button>
+                <Modal open={open} onClose={handleClose}>
+                  <Box sx={style}>
+                    <Typography id="modal-title" variant="h6">
+                      Editar Tarefa
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      label="Tarefa"
+                    />
+                    <Button
+                      onClick={() => editTodo(todo)}
+                      variant="contained"
+                      color="primary"
+                    >
+                      Salvar
+                    </Button>
+                  </Box>
+                </Modal>
+              </div>
+            ))}
+          </main>
         </header>
       </main>
     </SnackbarProvider>
