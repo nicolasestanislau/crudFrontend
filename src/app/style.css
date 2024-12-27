@@ -28,6 +28,7 @@
 .todos {
   display: flex;
   align-items: center;
+  justify-content: center;
   background-color: rgb(24, 26, 27);
   width: 508px;
   height: 383px;
